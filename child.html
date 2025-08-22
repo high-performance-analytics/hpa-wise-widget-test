@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Widget semplificato</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; padding: 24px; }
+    .wrap { max-width: 880px; margin: 0 auto; }
+    .panel { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 16px; box-shadow: 0 4px 16px rgba(0,0,0,.05); }
+    textarea { width: 100%; height: 120px; padding: 12px; border-radius: 12px; border: 1px solid #d1d5db; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    button { padding: 10px 16px; border-radius: 12px; border: 0; cursor: pointer; }
+    .primary { background: #5b6cf0; color: white; }
+    .ghost { background: #f3f4f6; color: #111827; margin-left: 8px; }
+    .muted { color: #374151; font-size: 14px; }
+    .status { margin-top: 10px; padding: 10px; border-radius: 12px; background: #f9fafb; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .ok { color: #016b45; }
+    .bad { color: #b00020; }
+    code { background: #f0f0f5; padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Il tuo widget è pronto!</h1>
+    <p class="muted">Qui trovi il codice da incorporare sul tuo sito (demo):</p>
+    <div class="panel">
+      <textarea id="snippet">&lt;script type="text/javascript" data-widget-id="47"&gt;(function(){var s=document.createElement('script');s.async=true;s.src='https://widget.hpa.ai/widget.umd.js';var e=document.getElementsByTagName('script')[0];e.parentNode.insertBefore(s,e);})();&lt;/script&gt;</textarea>
+      <div style="margin-top:10px">
+        <button id="copyBtn" class="primary">Copia</button>
+        <button id="simulate" class="ghost" title="Simula caricamento di una risorsa esterna">Carica widget esterno (demo)</button>
+      </div>
+      <div id="status" class="status">Pronto.</div>
+    </div>
+
+    <h2 style="margin-top:24px">Verifica che sia stato inserito correttamente</h2>
+    <p class="muted">Campo URL di esempio come nello screenshot.</p>
+    <div class="panel">
+      <input id="url" type="url" placeholder="https://www.hpa.ai/" style="width:100%; padding:12px; border-radius:12px; border:1px solid #d1d5db" />
+      <div class="muted" style="margin-top:10px">Questo è solo un placeholder per riprodurre layout/azioni.</div>
+    </div>
+  </div>
+
+  <script>
+    const status = document.getElementById('status');
+    const btn = document.getElementById('copyBtn');
+    const ta = document.getElementById('snippet');
+    const simulate = document.getElementById('simulate');
+
+    function log(msg, good=false){
+      status.textContent = msg;
+      status.className = 'status ' + (good ? 'ok' : 'bad');
+      console.log('[child]', msg);
+    }
+
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(ta.value);
+        log('✅ Copiato negli appunti via navigator.clipboard.writeText', true);
+      } catch (err) {
+        console.error(err);
+        log('❌ Clipboard API fallita: ' + (err && (err.name + ': ' + err.message)));
+        // Fallback legacy (execCommand) per confrontare comportamenti
+        try {
+          ta.select();
+          const ok = document.execCommand('copy');
+          if (ok) {
+            status.className = 'status ok';
+            status.textContent = '⚠️ Fallback execCommand ha funzionato (Clipboard API bloccata in iframe?)';
+          } else {
+            status.textContent += ' | Fallback execCommand non riuscito.';
+          }
+        } catch (e) {
+          status.textContent += ' | Fallback execCommand errore: ' + e.message;
+        }
+      }
+    });
+
+    simulate.addEventListener('click', () => {
+      // Simula il caricamento di uno script esterno come nel widget reale
+      const s = document.createElement('script');
+      s.async = true;
+      s.src = 'external-widget-demo.js';
+      s.onload = () => log('Script esterno caricato correttamente.', true);
+      s.onerror = () => log('Errore nel caricare lo script esterno.');
+      document.body.appendChild(s);
+    });
+  </script>
+</body>
+</html>
