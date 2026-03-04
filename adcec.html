@@ -594,6 +594,24 @@
             nav {
                 display: none;
             }
+
+            /* Override tema sito dentro al widget */
+            .hpa-widget,
+            .hpa-widget * {
+                color: #000 !important;
+            }
+
+            /* Extra: campi form e placeholder (se presenti nel widget) */
+            .hpa-widget input,
+            .hpa-widget textarea,
+            .hpa-widget select,
+            .hpa-widget button {
+                color: #000 !important;
+            }
+
+            .hpa-widget ::placeholder {
+                color: rgba(0, 0, 0, 0.6) !important;
+            }
         }
     </style>
 </head>
@@ -817,15 +835,15 @@
             </div>
         </div>
     </footer>
-    <script type="text/javascript" data-widget-id="82" >
-(function() {
-  var s = document.createElement('script');
-  s.async = true;
-  s.src = 'https://widget.hpa.ai/widget.umd.js';
-  var e = document.getElementsByTagName('script')[0];
-  e.parentNode.insertBefore(s, e);
-})();
-</script>
+    <script type="text/javascript" data-widget-id="82">
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.src = 'https://widget.hpa.ai/widget.umd.js';
+            var e = document.getElementsByTagName('script')[0];
+            e.parentNode.insertBefore(s, e);
+        })();
+    </script>
 </body>
 
 </html>
