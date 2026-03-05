@@ -844,6 +844,38 @@
             e.parentNode.insertBefore(s, e);
         })();
     </script>
+    <script>
+        (() => {
+            const css = `
+                .hpa-widget, .hpa-widget * { color: #000 !important; }
+                .hpa-widget ::placeholder { color: rgba(0, 0, 0, 0.6) !important; }
+            `;
+
+            const inject = () => {
+                const host = Array.from(document.querySelectorAll("*"))
+                    .find((el) => el.shadowRoot && el.shadowRoot.querySelector(".hpa-widget"));
+
+                if (!host) return false;
+
+                const root = host.shadowRoot;
+                if (root.getElementById("hpa-theme-overrides")) return true;
+
+                const style = document.createElement("style");
+                style.id = "hpa-theme-overrides";
+                style.textContent = css;
+                root.appendChild(style);
+                return true;
+            };
+
+            if (inject()) return;
+
+            const obs = new MutationObserver(() => {
+                if (inject()) obs.disconnect();
+            });
+
+            obs.observe(document.documentElement, { childList: true, subtree: true });
+        })();
+    </script>
 </body>
 
 </html>
