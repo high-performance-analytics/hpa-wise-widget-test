@@ -869,7 +869,6 @@
             root.appendChild(style);
             injected.add(root);
 
-            // Osserva anche eventuali re-render interni al shadow root
             new MutationObserver(() => {
             if (!root.getElementById("hpa-theme-overrides")) {
                 const s = document.createElement("style");
@@ -881,13 +880,11 @@
         });
         };
 
-        // Osserva il DOM globale per nuovi elementi
         new MutationObserver(tryInject).observe(document.documentElement, {
         childList: true,
         subtree: true,
         });
 
-        // Retry periodico come fallback (si ferma dopo 10s)
         let attempts = 0;
         const interval = setInterval(() => {
         tryInject();
