@@ -845,36 +845,55 @@
         })();
     </script>
     <script>
-        (() => {
-            const css = `
-                .hpa-widget, .hpa-widget * { color: #000 !important; }
-                .hpa-widget ::placeholder { color: rgba(0, 0, 0, 0.6) !important; }
-            `;
+    (() => {
+        const css = `
+        .hpa-widget, .hpa-widget * { color: #000 !important; }
+        .hpa-widget input,
+        .hpa-widget textarea,
+        .hpa-widget select,
+        .hpa-widget button { color: #000 !important; }
+        .hpa-widget ::placeholder { color: rgba(0,0,0,0.6) !important; }
+        `;
 
-            const inject = () => {
-                const host = Array.from(document.querySelectorAll("*"))
-                    .find((el) => el.shadowRoot && el.shadowRoot.querySelector(".hpa-widget"));
+        const injected = new WeakSet();
 
-                if (!host) return false;
+        const tryInject = () => {
+        document.querySelectorAll("*").forEach((el) => {
+            const root = el.shadowRoot;
+            if (!root || injected.has(root)) return;
+            if (!root.querySelector(".hpa-widget")) return;
 
-                const root = host.shadowRoot;
-                if (root.getElementById("hpa-theme-overrides")) return true;
+            const style = document.createElement("style");
+            style.id = "hpa-theme-overrides";
+            style.textContent = css;
+            root.appendChild(style);
+            injected.add(root);
 
-                const style = document.createElement("style");
-                style.id = "hpa-theme-overrides";
-                style.textContent = css;
-                root.appendChild(style);
-                return true;
-            };
+            // Osserva anche eventuali re-render interni al shadow root
+            new MutationObserver(() => {
+            if (!root.getElementById("hpa-theme-overrides")) {
+                const s = document.createElement("style");
+                s.id = "hpa-theme-overrides";
+                s.textContent = css;
+                root.appendChild(s);
+            }
+            }).observe(root, { childList: true, subtree: true });
+        });
+        };
 
-            if (inject()) return;
+        // Osserva il DOM globale per nuovi elementi
+        new MutationObserver(tryInject).observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+        });
 
-            const obs = new MutationObserver(() => {
-                if (inject()) obs.disconnect();
-            });
-
-            obs.observe(document.documentElement, { childList: true, subtree: true });
-        })();
+        // Retry periodico come fallback (si ferma dopo 10s)
+        let attempts = 0;
+        const interval = setInterval(() => {
+        tryInject();
+        if (++attempts >= 20) clearInterval(interval);
+        }, 500);
+    })();
     </script>
 </body>
 
