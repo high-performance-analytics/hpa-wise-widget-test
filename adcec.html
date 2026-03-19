@@ -835,7 +835,7 @@
             </div>
         </div>
     </footer>
-    <script type="text/javascript" data-widget-id="82">
+    <script type="text/javascript" data-widget-id="85">
         (function () {
             var s = document.createElement('script');
             s.async = true;
@@ -843,54 +843,6 @@
             var e = document.getElementsByTagName('script')[0];
             e.parentNode.insertBefore(s, e);
         })();
-    </script>
-    <script>
-    (() => {
-        const css = `
-        .hpa-widget, .hpa-widget * { color: #000 !important; }
-        .hpa-widget input,
-        .hpa-widget textarea,
-        .hpa-widget select,
-        .hpa-widget button { color: #000 !important; }
-        .hpa-widget ::placeholder { color: rgba(0,0,0,0.6) !important; }
-        `;
-
-        const injected = new WeakSet();
-
-        const tryInject = () => {
-        document.querySelectorAll("*").forEach((el) => {
-            const root = el.shadowRoot;
-            if (!root || injected.has(root)) return;
-            if (!root.querySelector(".hpa-widget")) return;
-
-            const style = document.createElement("style");
-            style.id = "hpa-theme-overrides";
-            style.textContent = css;
-            root.appendChild(style);
-            injected.add(root);
-
-            new MutationObserver(() => {
-            if (!root.getElementById("hpa-theme-overrides")) {
-                const s = document.createElement("style");
-                s.id = "hpa-theme-overrides";
-                s.textContent = css;
-                root.appendChild(s);
-            }
-            }).observe(root, { childList: true, subtree: true });
-        });
-        };
-
-        new MutationObserver(tryInject).observe(document.documentElement, {
-        childList: true,
-        subtree: true,
-        });
-
-        let attempts = 0;
-        const interval = setInterval(() => {
-        tryInject();
-        if (++attempts >= 20) clearInterval(interval);
-        }, 500);
-    })();
     </script>
 </body>
 
