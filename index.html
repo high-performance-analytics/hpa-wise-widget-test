@@ -1,77 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>🧸 Widget Playground</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Mockup e Widget WISE</title>
   <style>
     body {
       margin: 0;
-      padding: 2rem;
-      font-family: 'Nunito', sans-serif;
-      background: linear-gradient(to bottom right, #ffe7e7, #e6f0ff);
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    .container {
       min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .card {
+      background: white;
+      padding: 48px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      max-width: 700px;
     }
 
     h1 {
-      font-size: 2.5rem;
-      font-weight: 600;
-      color: #5a3e85;
-      margin-bottom: 0.5rem;
+      font-size: 36px;
+      margin-bottom: 16px;
+      color: #111;
     }
 
     p {
-      font-size: 1.1rem;
-      color: #555;
-      margin-bottom: 2rem;
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 0;
     }
 
-    .widget-container {
-      width: 100%;
-      max-width: 600px;
-      padding: 2rem;
-      background-color: #ffffffcc;
-      border-radius: 16px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    footer {
-      margin-top: auto;
-      padding: 1rem;
-      font-size: 0.9rem;
-      color: #888;
+    .highlight {
+      color: #00b67a;
+      font-weight: bold;
     }
   </style>
 </head>
-
 <body>
-  <h1>🧸 Welcome to My Widget Test Page</h1>
-  <p>This is a cozy little place to test external widgets (main) ✨</p>
-
-  <div class="widget-container">
-    <!-- Insert your widget code below -->
-    <div id="my-widget">Your widget will appear in the bottom right.</div>
-    <!-- Example: <script src="https://example.com/widget.js"></script> -->
-  </div>
-
-  <footer>
-    Made with 💕 on GitHub Pages
-  </footer>
-<script type="text/javascript" data-widget-id="76" >
-(function() {
-  var s = document.createElement('script');
-  s.async = true;
-  s.src = 'https://widget.hpa.ai/widget.umd.js';
-  var e = document.getElementsByTagName('script')[0];
-  e.parentNode.insertBefore(s, e);
-})();
-</script>
+  <main class="container">
+    <section class="card">
+      <h1>Area Test Mockup e Widget <span class="highlight">WISE</span></h1>
+      <p>
+        In questo sito web andremo a inserire tutti i test relativi
+        ai mockup e ai widget di WISE.
+      </p>
+    </section>
+  </main>
 </body>
-
 </html>

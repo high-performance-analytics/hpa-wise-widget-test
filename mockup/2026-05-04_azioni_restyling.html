@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WISE — Le Azioni</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f6f8;
+            --surface: #ffffff;
+            --surface2: #f0f2f5;
+            --border: #e3e6ec;
+            --border-hover: #c8cdd9;
+            --accent: #2e6fff;
+            --accent2: #6c45f5;
+            --accent3: #00b389;
+            --text: #141928;
+            --text-muted: #6b738f;
+            --text-dim: #b0b8cc;
+            --success: #00b389;
+            --tag-bg: rgba(46, 111, 255, 0.07);
+            --tag-border: rgba(46, 111, 255, 0.18);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle, #c8cdd9 1px, transparent 1px);
+            background-size: 28px 28px;
+            opacity: .35;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 0 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* NAV */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 32px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            margin: 0 -32px;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 21px;
+            letter-spacing: -.5px;
+            background: linear-gradient(135deg, #1a3fa8, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 2px;
+            background: var(--surface2);
+            padding: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .nav-tab {
+            padding: 7px 18px;
+            border-radius: 7px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all .18s;
+            border: none;
+            background: none;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .nav-tab.active {
+            background: var(--surface);
+            color: var(--text);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-tab:hover:not(.active) {
+            color: var(--text);
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .nav-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2e6fff, #6c45f5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* SECTION HEADER */
+        .section-header {
+            padding: 44px 0 32px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 32px;
+            letter-spacing: -.8px;
+            line-height: 1;
+            color: var(--text);
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 7px;
+            font-weight: 300;
+        }
+
+        .badge-count {
+            font-family: 'Syne', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            background: var(--tag-bg);
+            border: 1px solid var(--tag-border);
+            padding: 3px 11px;
+            border-radius: 20px;
+            margin-bottom: 7px;
+            display: inline-block;
+        }
+
+        /* SEARCH BAR (cards) */
+        .search-bar {
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 11px 18px 11px 42px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            color: var(--text);
+            transition: border-color .18s, box-shadow .18s;
+            outline: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-bar input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(46, 111, 255, .1);
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ACTIONS GRID */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 72px;
+        }
+
+        /* GROUP LABELS */
+        .group-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            margin-top: 8px;
+        }
+
+        .group-label-pill {
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 11px;
+            border-radius: 20px;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            border-width: 1px;
+            border-style: solid;
+        }
+
+        .group-label-text {
+            font-size: 12.5px;
+            color: var(--text-dim);
+            font-weight: 300;
+        }
+
+        .group-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .action-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all .22s cubic-bezier(.16, 1, .3, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .action-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .action-card-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .action-card-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 600;
+            font-size: 14.5px;
+            letter-spacing: -.2px;
+            margin-bottom: 9px;
+            color: var(--text);
+        }
+
+        .action-card-desc {
+            font-size: 13px;
+            line-height: 1.65;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        .action-card-footer {
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .action-tag {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 3px 9px;
+            border-radius: 20px;
+            background: var(--tag-bg);
+            border: 1px solid var(--tag-border);
+            color: var(--accent);
+        }
+
+        .action-run-btn {
+            width: 27px;
+            height: 27px;
+            border-radius: 7px;
+            background: var(--tag-bg);
+            border: 1px solid var(--tag-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 11px;
+            transition: all .18s;
+            cursor: pointer;
+        }
+
+        .action-run-btn:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(46, 111, 255, .3);
+        }
+
+        .icon-blue {
+            background: rgba(46, 111, 255, .08);
+        }
+
+        .icon-purple {
+            background: rgba(108, 69, 245, .08);
+        }
+
+        .icon-teal {
+            background: rgba(0, 179, 137, .08);
+        }
+
+        .icon-orange {
+            background: rgba(224, 120, 10, .08);
+        }
+
+        .icon-pink {
+            background: rgba(214, 48, 96, .08);
+        }
+
+        /* Tag variants */
+        .tag-base {
+            background: rgba(46, 111, 255, .07);
+            border-color: rgba(46, 111, 255, .18);
+            color: #2e6fff;
+        }
+
+        .tag-italferr {
+            background: rgba(30, 140, 80, .07);
+            border-color: rgba(30, 140, 80, .2);
+            color: #1a8a4a;
+        }
+
+        .tag-pf {
+            background: rgba(224, 120, 10, .07);
+            border-color: rgba(224, 120, 10, .2);
+            color: #c06a00;
+        }
+
+        .tag-chemical {
+            background: rgba(214, 48, 96, .07);
+            border-color: rgba(214, 48, 96, .2);
+            color: #d63060;
+        }
+
+        .tag-banking {
+            background: rgba(0, 179, 137, .07);
+            border-color: rgba(0, 179, 137, .2);
+            color: #00966e;
+        }
+
+        .action-tag.tag-base {
+            background: rgba(46, 111, 255, .07);
+            border-color: rgba(46, 111, 255, .18);
+            color: #2e6fff;
+        }
+
+        .action-tag.tag-italferr {
+            background: rgba(30, 140, 80, .07);
+            border-color: rgba(30, 140, 80, .2);
+            color: #1a8a4a;
+        }
+
+        .action-tag.tag-pf {
+            background: rgba(224, 120, 10, .07);
+            border-color: rgba(224, 120, 10, .2);
+            color: #c06a00;
+        }
+
+        .action-tag.tag-chemical {
+            background: rgba(214, 48, 96, .07);
+            border-color: rgba(214, 48, 96, .2);
+            color: #d63060;
+        }
+
+        .action-tag.tag-banking {
+            background: rgba(0, 179, 137, .07);
+            border-color: rgba(0, 179, 137, .2);
+            color: #00966e;
+        }
+
+        .run-base {
+            background: rgba(46, 111, 255, .07);
+            border-color: rgba(46, 111, 255, .18);
+            color: #2e6fff;
+        }
+
+        .run-italferr {
+            background: rgba(30, 140, 80, .07);
+            border-color: rgba(30, 140, 80, .2);
+            color: #1a8a4a;
+        }
+
+        .run-pf {
+            background: rgba(224, 120, 10, .07);
+            border-color: rgba(224, 120, 10, .2);
+            color: #c06a00;
+        }
+
+        .run-chemical {
+            background: rgba(214, 48, 96, .07);
+            border-color: rgba(214, 48, 96, .2);
+            color: #d63060;
+        }
+
+        .run-banking {
+            background: rgba(0, 179, 137, .07);
+            border-color: rgba(0, 179, 137, .2);
+            color: #00966e;
+        }
+
+        /* DIVIDER */
+        .section-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 0 0 56px;
+        }
+
+        /* HISTORY */
+        .history-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        /* FILTERS BAR */
+        .filters-bar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 11.5px;
+            color: var(--text-dim);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            flex-shrink: 0;
+        }
+
+        .filter-sep {
+            width: 1px;
+            height: 22px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        .filter-select {
+            appearance: none;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 6px 28px 6px 11px;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+            outline: none;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color .15s, color .15s;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b738f' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            min-width: 140px;
+        }
+
+        .filter-select:hover,
+        .filter-select:focus {
+            border-color: var(--border-hover);
+            color: var(--text);
+        }
+
+        .filter-select.has-value {
+            border-color: var(--accent);
+            color: var(--accent);
+            background-color: var(--tag-bg);
+        }
+
+        /* Document search filter */
+        .filter-doc-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 180px;
+            max-width: 260px;
+        }
+
+        .filter-doc-wrap input {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 6px 11px 6px 30px;
+            font-size: 13px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .filter-doc-wrap input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(46, 111, 255, .08);
+        }
+
+        .filter-doc-wrap input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .filter-doc-wrap input.has-value {
+            border-color: var(--accent);
+            background: var(--tag-bg);
+        }
+
+        .filter-doc-icon {
+            position: absolute;
+            left: 9px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            width: 13px;
+            height: 13px;
+            pointer-events: none;
+        }
+
+        .filter-chip {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            font-size: 12.5px;
+            font-weight: 400;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all .15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .filter-chip:hover {
+            border-color: var(--border-hover);
+            color: var(--text);
+        }
+
+        .filter-chip.active {
+            background: var(--tag-bg);
+            border-color: var(--tag-border);
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .clear-filters {
+            font-size: 12px;
+            color: var(--text-dim);
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            transition: color .15s;
+            background: none;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        .clear-filters:hover {
+            color: var(--text-muted);
+        }
+
+        /* ACTIVE FILTER CHIPS */
+        .active-filters {
+            display: none;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+
+        .active-filters-label {
+            font-size: 11.5px;
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+
+        .active-filter-chip {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 9px;
+            background: var(--tag-bg);
+            border: 1px solid var(--tag-border);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .active-filter-chip button {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 13px;
+            line-height: 1;
+            display: flex;
+            padding: 0;
+            opacity: .5;
+            transition: opacity .12s;
+        }
+
+        .active-filter-chip button:hover {
+            opacity: 1;
+        }
+
+        /* TABLE */
+        .history-table {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .history-table-head {
+            display: grid;
+            grid-template-columns: 150px 1fr 78px 110px 200px 40px;
+            padding: 10px 22px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface2);
+        }
+
+        .history-table-head span {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--text-dim);
+        }
+
+        .history-row {
+            display: grid;
+            grid-template-columns: 150px 1fr 78px 110px 200px 40px;
+            padding: 14px 22px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            transition: background .12s;
+            cursor: pointer;
+        }
+
+        .history-row:last-child {
+            border-bottom: none;
+        }
+
+        .history-row:hover {
+            background: #fafbfd;
+        }
+
+        .history-date {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .history-date-day {
+            color: var(--text);
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .history-date-time {
+            font-size: 11.5px;
+            color: var(--text-dim);
+        }
+
+        .history-action-name {
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .model-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 5px;
+            background: rgba(108, 69, 245, .07);
+            border: 1px solid rgba(108, 69, 245, .15);
+            color: #6c45f5;
+            width: fit-content;
+        }
+
+        .lang-badge {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 3px 9px;
+            border-radius: 5px;
+            background: rgba(0, 179, 137, .07);
+            border: 1px solid rgba(0, 179, 137, .15);
+            color: var(--accent3);
+            width: fit-content;
+        }
+
+        .file-chip {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--text-muted);
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            padding: 4px 9px;
+            border-radius: 6px;
+            width: fit-content;
+            max-width: 188px;
+            overflow: hidden;
+        }
+
+        .file-chip-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 4px var(--success);
+            flex-shrink: 0;
+        }
+
+        .delete-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: none;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all .15s;
+            justify-self: end;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: rgba(220, 40, 40, .07);
+            border-color: rgba(220, 40, 40, .15);
+            color: #dc2828;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 56px 0;
+            color: var(--text-dim);
+            font-size: 14px;
+            display: none;
+        }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px 0;
+            margin-bottom: 80px;
+            margin-top: 4px;
+        }
+
+        .pagination-info {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .pagination-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+        .page-btn {
+            width: 31px;
+            height: 31px;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .15s;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .page-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(46, 111, 255, .25);
+        }
+
+        .page-btn:hover:not(.active) {
+            border-color: var(--border-hover);
+            color: var(--text);
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .action-card {
+            animation: fadeUp .35s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .action-card:nth-child(1) {
+            animation-delay: .04s
+        }
+
+        .action-card:nth-child(2) {
+            animation-delay: .08s
+        }
+
+        .action-card:nth-child(3) {
+            animation-delay: .12s
+        }
+
+        .action-card:nth-child(4) {
+            animation-delay: .16s
+        }
+
+        .action-card:nth-child(5) {
+            animation-delay: .20s
+        }
+
+        .action-card:nth-child(6) {
+            animation-delay: .24s
+        }
+
+        .action-card:nth-child(7) {
+            animation-delay: .28s
+        }
+
+        .action-card:nth-child(8) {
+            animation-delay: .32s
+        }
+
+        .action-card:nth-child(9) {
+            animation-delay: .36s
+        }
+
+        .action-card:nth-child(10) {
+            animation-delay: .40s
+        }
+
+        .history-row {
+            animation: fadeUp .28s cubic-bezier(.16, 1, .3, 1) both;
+        }
+
+        .hl {
+            background: rgba(46, 111, 255, .13);
+            border-radius: 2px;
+            padding: 0 1px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- NAV -->
+        <nav>
+            <div class="logo">WISE</div>
+            <div class="nav-tabs">
+                <button class="nav-tab active">Azioni</button>
+                <button class="nav-tab">Documenti</button>
+                <button class="nav-tab">Analytics</button>
+                <button class="nav-tab">Impostazioni</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:13px;color:var(--text-muted)">Workspace Pro</span>
+                <div class="nav-avatar">U</div>
+            </div>
+        </nav>
+
+        <!-- ACTIONS -->
+        <div class="section-header">
+            <div>
+                <span class="badge-count">10 Azioni disponibili</span>
+                <h1 class="section-title">Le Azioni di WISE</h1>
+                <p class="section-subtitle">Seleziona un'azione per automatizzare l'analisi dei tuoi documenti</p>
+            </div>
+            <div class="search-bar" style="width:300px;">
+                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" placeholder="Cerca un'azione…" oninput="filterCards(this.value)">
+            </div>
+        </div>
+
+        <div class="actions-grid" id="actionsGrid">
+
+            <!-- WISE Base (alfabetico) -->
+            <div class="action-card" data-name="Confronto Documentale">
+                <div class="action-card-icon icon-purple"><svg width="19" height="19" fill="none" stroke="#6c45f5"
+                        stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                    </svg></div>
+                <div class="action-card-title">Confronto Documentale</div>
+                <div class="action-card-desc">Confronta due o più revisioni dello stesso documento per evidenziarne le
+                    differenze.</div>
+                <div class="action-card-footer"><span class="action-tag tag-base">WISE Base</span><button
+                        class="action-run-btn run-base">▶</button></div>
+            </div>
+
+            <div class="action-card" data-name="Estrazione Dati">
+                <div class="action-card-icon icon-blue"><svg width="19" height="19" fill="none" stroke="#2e6fff"
+                        stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+                    </svg></div>
+                <div class="action-card-title">Estrazione Dati</div>
+                <div class="action-card-desc">Estrae informazioni specifiche dai documenti selezionati e le organizza in
+                    un formato standardizzato e strutturato.</div>
+                <div class="action-card-footer"><span class="action-tag tag-base">WISE Base</span><button
+                        class="action-run-btn run-base">▶</button></div>
+            </div>
+
+            <div class="action-card" data-name="Traduzione del Testo">
+                <div class="action-card-icon icon-teal"><svg width="19" height="19" fill="none" stroke="#00b389"
+                        stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                    </svg></div>
+                <div class="action-card-title">Traduzione del Testo</div>
+                <div class="action-card-desc">Traduce il testo fornito da una lingua sorgente a una lingua target con
+                    precisione contestuale.</div>
+                <div class="action-card-footer"><span class="action-tag tag-base">WISE Base</span><button
+                        class="action-run-btn run-base">▶</button></div>
+            </div>
+
+            <div class="action-card" data-name="Verifica Coerenza Documentale">
+                <div class="action-card-icon icon-purple"><svg width="19" height="19" fill="none" stroke="#6c45f5"
+                        stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z" />
+                    </svg></div>
+                <div class="action-card-title">Verifica Coerenza Documentale</div>
+                <div class="action-card-desc">Analizza e confronta il contenuto dei documenti selezionati per
+                    identificare eventuali incoerenze o errori.</div>
+                <div class="action-card-footer"><span class="action-tag tag-base">WISE Base</span><button
+                        class="action-run-btn run-base">▶</button></div>
+            </div>
+
+            <!-- Verticali: Banking (alfabetico) -->
+            <div class="action-card" data-name="Banking: Rapporto di Credito">
+                <div class="action-card-icon icon-teal"><svg width="19" height="19" fill="none" stroke="#00b389"
+                        stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 6l9-3 9 3M3 6v12l9 3m-9-15l9 3m9-3v12l-9 3m9-15l-9 3" />
+                    </svg></div>
+                <div class="action-card-title">Banking: Rapporto di Credito</div>
+                <div class="action-card-desc">Seleziona documenti societari e bilanci finanziari per generare un
+                    rapporto con indicatori chiave su redditività, leva e rischi ESG.</div>
+                <div class="action-card-footer"><span class="action-tag tag-banking">Banking</span><button
+                        class="action-run-btn run-banking">▶</button></div>
+            </div>
+
+            <!-- Verticali: Chemical (alfabetico) -->
+            <div class="action-card" data-name="SDS: Estrazione delle Informazioni">
+                <div class="action-card-icon icon-pink"><svg width="19" height="19" fill="none" stroke="#d63060"
+                        stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg></div>
+                <div class="action-card-title">SDS: Estrazione delle Informazioni</div>
+                <div class="action-card-desc">Estrae e struttura le informazioni chiave da Schede di Dati di Sicurezza:
+                    intestazione prodotto, pericoli, limiti di esposizione e DPI.</div>
+                <div class="action-card-footer"><span class="action-tag tag-chemical">Chemical</span><button
+                        class="action-run-btn run-chemical">▶</button></div>
+            </div>
+
+            <div class="action-card" data-name="SDS: Verifica">
+                <div class="action-card-icon icon-pink"><svg width="19" height="19" fill="none" stroke="#d63060"
+                        stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg></div>
+                <div class="action-card-title">SDS: Verifica</div>
+                <div class="action-card-desc">Genera un report di verifica della conformità del documento selezionato
+                    secondo gli standard REACH e CLP.</div>
+                <div class="action-card-footer"><span class="action-tag tag-chemical">Chemical</span><button
+                        class="action-run-btn run-chemical">▶</button></div>
+            </div>
+
+            <!-- Aziende: Italferr (alfabetico) -->
+            <div class="action-card" data-name="Automazione Checklist per Italferr">
+                <div class="action-card-icon icon-blue"><svg width="19" height="19" fill="none" stroke="#2e6fff"
+                        stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg></div>
+                <div class="action-card-title">Automazione Checklist per Italferr</div>
+                <div class="action-card-desc">Genera automaticamente un report di conformità dei documenti, valutando
+                    ciascun requisito applicabile mediante una checklist.</div>
+                <div class="action-card-footer"><span class="action-tag tag-italferr">Italferr</span><button
+                        class="action-run-btn run-italferr">▶</button></div>
+            </div>
+
+            <!-- Aziende: Pietro Fiorentini (alfabetico) -->
+            <div class="action-card" data-name="Automazione Checklist per Pietro Fiorentini">
+                <div class="action-card-icon icon-blue"><svg width="19" height="19" fill="none" stroke="#2e6fff"
+                        stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg></div>
+                <div class="action-card-title">Automazione Checklist per Pietro Fiorentini</div>
+                <div class="action-card-desc">Genera automaticamente un report di conformità per i prodotti, valutando
+                    ciascun requisito applicabile mediante una checklist.</div>
+                <div class="action-card-footer"><span class="action-tag tag-pf">Pietro Fiorentini</span><button
+                        class="action-run-btn run-pf">▶</button></div>
+            </div>
+
+            <div class="action-card" data-name="Controllo Brevetti per Pietro Fiorentini">
+                <div class="action-card-icon icon-orange"><svg width="19" height="19" fill="none" stroke="#e0780a"
+                        stroke-width="1.8" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg></div>
+                <div class="action-card-title">Controllo Brevetti per Pietro Fiorentini</div>
+                <div class="action-card-desc">Verifica un brevetto confrontandolo con brevetti di riferimento tramite
+                    analisi di similarità e rilevanza.</div>
+                <div class="action-card-footer"><span class="action-tag tag-pf">Pietro Fiorentini</span><button
+                        class="action-run-btn run-pf">▶</button></div>
+            </div>
+
+        </div><!-- /grid -->
+
+        <div class="section-divider"></div>
+
+        <!-- HISTORY -->
+        <div>
+            <div class="history-header">
+                <div>
+                    <h2 class="section-title" style="font-size:26px;">Il tuo storico delle Azioni</h2>
+                    <p class="section-subtitle">Consulta e riavvia le esecuzioni precedenti</p>
+                </div>
+            </div>
+
+            <!-- FILTERS -->
+            <div class="filters-bar">
+                <span class="filter-label">Filtra</span>
+
+                <select class="filter-select" id="filterAction" onchange="applyFilters()">
+                    <option value="">Tutte le Azioni</option>
+                    <option value="SDS: Verifica">SDS: Verifica</option>
+                    <option value="SDS: Estrazione delle Informazioni">SDS: Estrazione</option>
+                    <option value="Confronto Documentale">Confronto Doc.</option>
+                    <option value="Estrazione Dati">Estrazione Dati</option>
+                    <option value="Traduzione del Testo">Traduzione</option>
+                </select>
+
+                <select class="filter-select" id="filterModel" onchange="applyFilters()">
+                    <option value="">Tutti i modelli</option>
+                    <option value="GPT-5">GPT-5</option>
+                    <option value="GPT-4">GPT-4</option>
+                    <option value="Claude">Claude</option>
+                </select>
+
+                <select class="filter-select" id="filterLang" onchange="applyFilters()">
+                    <option value="">Tutte le lingue</option>
+                    <option value="Italiano">Italiano</option>
+                    <option value="English">English</option>
+                    <option value="Deutsch">Deutsch</option>
+                </select>
+
+                <!-- NEW: document search -->
+                <div class="filter-doc-wrap">
+                    <svg class="filter-doc-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <input type="text" id="filterDoc" placeholder="Cerca documento…" oninput="applyFilters()">
+                </div>
+
+                <div class="filter-sep"></div>
+
+                <button class="filter-chip" onclick="toggleQuickFilter(this,'SDS: Verifica')">SDS: Verifica</button>
+                <button class="filter-chip" onclick="toggleQuickFilter(this,'SDS: Estrazione delle Informazioni')">SDS:
+                    Estrazione</button>
+                <button class="filter-chip" onclick="toggleQuickFilter(this,'Confronto Documentale')">Confronto</button>
+
+                <button class="clear-filters" onclick="clearAllFilters()">Azzera filtri</button>
+            </div>
+
+            <!-- ACTIVE CHIPS -->
+            <div class="active-filters" id="activeFilters">
+                <span class="active-filters-label">Filtri attivi:</span>
+            </div>
+
+            <!-- TABLE -->
+            <div class="history-table">
+                <div class="history-table-head">
+                    <span>Data</span>
+                    <span>Azione</span>
+                    <span>Modello</span>
+                    <span>Lingua</span>
+                    <span>Documento</span>
+                    <span></span>
+                </div>
+                <div id="historyRows">
+
+                    <div class="history-row" data-action="SDS: Verifica" data-model="GPT-5" data-lang="Italiano"
+                        data-file="IT_G282-0017-04_009.pdf">
+                        <div class="history-date"><span class="history-date-day">20/04/2026</span><span
+                                class="history-date-time">12:22</span></div>
+                        <div class="history-action-name">SDS: Verifica</div>
+                        <div><span class="model-badge">GPT-5</span></div>
+                        <div><span class="lang-badge">Italiano</span></div>
+                        <div>
+                            <div class="file-chip">
+                                <div class="status-dot"></div><span
+                                    class="file-chip-name">IT_G282-0017-04_009.pdf</span>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="event.stopPropagation()">✕</button>
+                    </div>
+
+                    <div class="history-row" data-action="SDS: Verifica" data-model="GPT-5" data-lang="Italiano"
+                        data-file="8005728_IT_IT.PDF">
+                        <div class="history-date"><span class="history-date-day">20/04/2026</span><span
+                                class="history-date-time">12:14</span></div>
+                        <div class="history-action-name">SDS: Verifica</div>
+                        <div><span class="model-badge">GPT-5</span></div>
+                        <div><span class="lang-badge">Italiano</span></div>
+                        <div>
+                            <div class="file-chip">
+                                <div class="status-dot"></div><span class="file-chip-name">8005728_IT_IT.PDF</span>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="event.stopPropagation()">✕</button>
+                    </div>
+
+                    <div class="history-row" data-action="SDS: Verifica" data-model="GPT-5" data-lang="Italiano"
+                        data-file="SARTORI IT_ACIFR40_CLP_2.pdf">
+                        <div class="history-date"><span class="history-date-day">20/04/2026</span><span
+                                class="history-date-time">11:53</span></div>
+                        <div class="history-action-name">SDS: Verifica</div>
+                        <div><span class="model-badge">GPT-5</span></div>
+                        <div><span class="lang-badge">Italiano</span></div>
+                        <div>
+                            <div class="file-chip">
+                                <div class="status-dot"></div><span class="file-chip-name">SARTORI
+                                    IT_ACIFR40_CLP_2.pdf</span>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="event.stopPropagation()">✕</button>
+                    </div>
+
+                    <div class="history-row" data-action="SDS: Verifica" data-model="GPT-5" data-lang="Italiano"
+                        data-file="paracetamolo_it.pdf">
+                        <div class="history-date"><span class="history-date-day">16/04/2026</span><span
+                                class="history-date-time">15:00</span></div>
+                        <div class="history-action-name">SDS: Verifica</div>
+                        <div><span class="model-badge">GPT-5</span></div>
+                        <div><span class="lang-badge">Italiano</span></div>
+                        <div>
+                            <div class="file-chip">
+                                <div class="status-dot"></div><span class="file-chip-name">paracetamolo_it.pdf</span>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="event.stopPropagation()">✕</button>
+                    </div>
+
+                    <div class="history-row" data-action="SDS: Verifica" data-model="GPT-5" data-lang="Italiano"
+                        data-file="Loxeal 55-04_LX5504_IT.pdf">
+                        <div class="history-date"><span class="history-date-day">14/04/2026</span><span
+                                class="history-date-time">16:11</span></div>
+                        <div class="history-action-name">SDS: Verifica</div>
+                        <div><span class="model-badge">GPT-5</span></div>
+                        <div><span class="lang-badge">Italiano</span></div>
+                        <div>
+                            <div class="file-chip">
+                                <div class="status-dot"></div><span class="file-chip-name">Loxeal
+                                    55-04_LX5504_IT.pdf</span>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="event.stopPropagation()">✕</button>
+                    </div>
+
+                    <div class="history-row" data-action="SDS: Verifica" data-model="GPT-5" data-lang="Italiano"
+                        data-file="HHS 2000 ST - Wurth.pdf">
+                        <div class="history-date"><span class="history-date-day">08/04/2026</span><span
+                                class="history-date-time">10:46</span></div>
+                        <div class="history-action-name">SDS: Verifica</div>
+                        <div><span class="model-badge">GPT-5</span></div>
+                        <div><span class="lang-badge">Italiano</span></div>
+                        <div>
+                            <div class="file-chip">
+                                <div class="status-dot"></div><span class="file-chip-name">HHS 2000 ST -
+                                    Wurth.pdf</span>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="event.stopPropagation()">✕</button>
+                    </div>
+
+                    <div class="history-row" data-action="SDS: Verifica" data-model="GPT-5" data-lang="Italiano"
+                        data-file="OLIO DI LINO - Thywissen.pdf">
+                        <div class="history-date"><span class="history-date-day">08/04/2026</span><span
+                                class="history-date-time">10:26</span></div>
+                        <div class="history-action-name">SDS: Verifica</div>
+                        <div><span class="model-badge">GPT-5</span></div>
+                        <div><span class="lang-badge">Italiano</span></div>
+                        <div>
+                            <div class="file-chip">
+                                <div class="status-dot"></div><span class="file-chip-name">OLIO DI LINO -
+                                    Thywissen.pdf</span>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="event.stopPropagation()">✕</button>
+                    </div>
+
+                    <div class="history-row" data-action="SDS: Estrazione delle Informazioni" data-model="GPT-5"
+                        data-lang="" data-file="OLIO DI LINO - Thywissen.pdf">
+                        <div class="history-date"><span class="history-date-day">08/04/2026</span><span
+                                class="history-date-time">10:17</span></div>
+                        <div class="history-action-name">SDS: Estrazione delle Informazioni</div>
+                        <div><span class="model-badge">GPT-5</span></div>
+                        <div><span class="lang-badge"
+                                style="background:rgba(176,184,204,.12);border-color:rgba(176,184,204,.25);color:var(--text-dim)">—</span>
+                        </div>
+                        <div>
+                            <div class="file-chip">
+                                <div class="status-dot"></div><span class="file-chip-name">OLIO DI LINO -
+                                    Thywissen.pdf</span>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="event.stopPropagation()">✕</button>
+                    </div>
+
+                    <div class="history-row" data-action="SDS: Verifica" data-model="GPT-5" data-lang="Italiano"
+                        data-file="CERA XF2 - Tecnoresina.pdf">
+                        <div class="history-date"><span class="history-date-day">08/04/2026</span><span
+                                class="history-date-time">10:13</span></div>
+                        <div class="history-action-name">SDS: Verifica</div>
+                        <div><span class="model-badge">GPT-5</span></div>
+                        <div><span class="lang-badge">Italiano</span></div>
+                        <div>
+                            <div class="file-chip">
+                                <div class="status-dot"></div><span class="file-chip-name">CERA XF2 -
+                                    Tecnoresina.pdf</span>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="event.stopPropagation()">✕</button>
+                    </div>
+
+                    <div class="history-row" data-action="SDS: Estrazione delle Informazioni" data-model="GPT-5"
+                        data-lang="" data-file="0532-0400_EU_IT_IT_SDS_1.3.pdf">
+                        <div class="history-date"><span class="history-date-day">02/04/2026</span><span
+                                class="history-date-time">15:55</span></div>
+                        <div class="history-action-name">SDS: Estrazione delle Informazioni</div>
+                        <div><span class="model-badge">GPT-5</span></div>
+                        <div><span class="lang-badge"
+                                style="background:rgba(176,184,204,.12);border-color:rgba(176,184,204,.25);color:var(--text-dim)">—</span>
+                        </div>
+                        <div>
+                            <div class="file-chip">
+                                <div class="status-dot"></div><span
+                                    class="file-chip-name">0532-0400_EU_IT_IT_SDS_1.3.pdf</span>
+                            </div>
+                        </div>
+                        <button class="delete-btn" onclick="event.stopPropagation()">✕</button>
+                    </div>
+
+                </div>
+                <div class="empty-state" id="emptyState">
+                    <svg width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"
+                        style="margin:0 auto 10px;display:block">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    Nessun risultato per i filtri selezionati.
+                </div>
+            </div>
+
+            <!-- PAGINATION -->
+            <div class="pagination">
+                <span class="pagination-info" id="paginationInfo">Mostrando 10 di 24 risultati</span>
+                <div class="pagination-btns">
+                    <button class="page-btn">‹</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">›</button>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /container -->
+
+    <script>
+        let activeQuickFilters = new Set();
+
+        function filterCards(q) {
+            q = q.toLowerCase();
+            document.querySelectorAll('.action-card').forEach(c => {
+                c.style.display = c.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+            });
+        }
+
+        function toggleQuickFilter(btn, value) {
+            btn.classList.toggle('active');
+            activeQuickFilters.has(value) ? activeQuickFilters.delete(value) : activeQuickFilters.add(value);
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const action = document.getElementById('filterAction').value;
+            const model = document.getElementById('filterModel').value;
+            const lang = document.getElementById('filterLang').value;
+            const docRaw = document.getElementById('filterDoc').value;
+            const docQ = docRaw.toLowerCase().trim();
+
+            // Style selects
+            ['filterAction', 'filterModel', 'filterLang'].forEach(id => {
+                document.getElementById(id).classList.toggle('has-value', !!document.getElementById(id).value);
+            });
+            document.getElementById('filterDoc').classList.toggle('has-value', !!docQ);
+
+            const rows = document.querySelectorAll('#historyRows .history-row');
+            let visible = 0;
+
+            rows.forEach(row => {
+                const ok = (!action || row.dataset.action === action)
+                    && (!model || row.dataset.model === model)
+                    && (!lang || row.dataset.lang === lang)
+                    && (!docQ || row.dataset.file.toLowerCase().includes(docQ))
+                    && (activeQuickFilters.size === 0 || activeQuickFilters.has(row.dataset.action));
+
+                row.style.display = ok ? '' : 'none';
+                if (ok) {
+                    visible++;
+                    // highlight doc name
+                    const nameEl = row.querySelector('.file-chip-name');
+                    const orig = row.dataset.file;
+                    if (docQ) {
+                        const idx = orig.toLowerCase().indexOf(docQ);
+                        if (idx >= 0) {
+                            nameEl.innerHTML = orig.slice(0, idx)
+                                + '<span class="hl">' + orig.slice(idx, idx + docQ.length) + '</span>'
+                                + orig.slice(idx + docQ.length);
+                        } else { nameEl.textContent = orig; }
+                    } else { nameEl.textContent = orig; }
+                }
+            });
+
+            document.getElementById('paginationInfo').textContent = `Mostrando ${visible} di 24 risultati`;
+            document.getElementById('emptyState').style.display = visible === 0 ? 'block' : 'none';
+            renderChips(action, model, lang, docRaw);
+        }
+
+        function renderChips(action, model, lang, docRaw) {
+            const container = document.getElementById('activeFilters');
+            const chips = [];
+            if (action) chips.push({ label: `Azione: ${action}`, clear: () => { document.getElementById('filterAction').value = ''; applyFilters(); } });
+            if (model) chips.push({ label: `Modello: ${model}`, clear: () => { document.getElementById('filterModel').value = ''; applyFilters(); } });
+            if (lang) chips.push({ label: `Lingua: ${lang}`, clear: () => { document.getElementById('filterLang').value = ''; applyFilters(); } });
+            if (docRaw.trim()) chips.push({ label: `Doc: "${docRaw}"`, clear: () => { document.getElementById('filterDoc').value = ''; applyFilters(); } });
+            activeQuickFilters.forEach(f => chips.push({
+                label: f, clear: () => {
+                    activeQuickFilters.delete(f);
+                    document.querySelectorAll('.filter-chip').forEach(b => { if (b.textContent.trim().startsWith(f.split(':')[0].trim())) b.classList.remove('active'); });
+                    applyFilters();
+                }
+            }));
+
+            if (!chips.length) { container.style.display = 'none'; return; }
+            container.style.display = 'flex';
+            container.innerHTML = '<span class="active-filters-label">Filtri attivi:</span>'
+                + chips.map((c, i) => `<div class="active-filter-chip">${c.label}<button data-i="${i}">×</button></div>`).join('');
+            container.querySelectorAll('button[data-i]').forEach(btn => btn.addEventListener('click', chips[+btn.dataset.i].clear));
+        }
+
+        function clearAllFilters() {
+            ['filterAction', 'filterModel', 'filterLang'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('filterDoc').value = '';
+            activeQuickFilters.clear();
+            document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+            applyFilters();
+        }
+    </script>
+</body>
+
+</html>
