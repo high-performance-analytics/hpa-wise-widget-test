@@ -1082,26 +1082,48 @@
         
           /* ------------------------------------------------------------------
            * 5. Wait for shadow host + .hpa-widget, then embed
+           *
+           * Two-stage approach needed for <script> tag usage:
+           *   Stage A – watch the light DOM until the shadow host <div> appears
+           *             (appended to <body> by the widget loader script)
+           *   Stage B – watch the shadow root itself until React renders
+           *             .hpa-widget inside it (light-DOM observers cannot see
+           *             mutations that happen inside a shadow root)
            * ------------------------------------------------------------------ */
           function start() {
             injectOuterStyles();
         
+            /* Stage B: shadow host exists, wait for React to render .hpa-widget */
+            function waitForWidget(h) {
+              if (h.shadowRoot.querySelector('.hpa-widget')) {
+                embed(h, h.shadowRoot);
+                return;
+              }
+              var shadowObs = new MutationObserver(function (_, obs) {
+                if (!h.shadowRoot.querySelector('.hpa-widget')) return;
+                obs.disconnect();
+                embed(h, h.shadowRoot);
+              });
+              shadowObs.observe(h.shadowRoot, { childList: true, subtree: true });
+              setTimeout(function () { shadowObs.disconnect(); }, 20000);
+            }
+        
+            /* Fast path: everything already ready (e.g. dynamic injection) */
             var host = findShadowHost();
-            if (host && host.shadowRoot && host.shadowRoot.querySelector('.hpa-widget')) {
-              embed(host, host.shadowRoot);
+            if (host && host.shadowRoot) {
+              waitForWidget(host);
               return;
             }
         
-            var observer = new MutationObserver(function (_, obs) {
+            /* Stage A: shadow host not in DOM yet — watch light DOM for it */
+            var lightObs = new MutationObserver(function (_, obs) {
               var h = findShadowHost();
               if (!h || !h.shadowRoot) return;
-              if (!h.shadowRoot.querySelector('.hpa-widget')) return;
               obs.disconnect();
-              embed(h, h.shadowRoot);
+              waitForWidget(h);
             });
-        
-            observer.observe(document.documentElement, { childList: true, subtree: true });
-            setTimeout(function () { observer.disconnect(); }, 20000);
+            lightObs.observe(document.documentElement, { childList: true, subtree: true });
+            setTimeout(function () { lightObs.disconnect(); }, 20000);
           }
         
           /* ------------------------------------------------------------------
@@ -1113,6 +1135,7 @@
             start();
           }
         }());
+
     </script>
 
 
