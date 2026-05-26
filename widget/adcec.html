@@ -844,6 +844,279 @@
             e.parentNode.insertBefore(s, e);
         })();
     </script>
+
+    <script type="text/javascript">
+        (function () {
+          'use strict';
+        
+          var WRAP_ID = 'hpa-hero-embed';
+        
+          /* ------------------------------------------------------------------
+           * 1. Inject outer CSS: wrapper entrance animation + host positioning
+           *    (regular styles cannot pierce the shadow DOM, so only the host
+           *    element and the wrapper are styled here)
+           * ------------------------------------------------------------------ */
+          function injectOuterStyles() {
+            var style = document.createElement('style');
+            style.textContent = [
+              /* Wrapper: fixed dimensions set immediately — animation stays inside */
+              '#' + WRAP_ID + ' {',
+              '  position: relative;',
+              '  width: 100%;',
+              '  height: 500px;',
+              '  margin-bottom: 28px;',
+              '  border-radius: 18px;',
+              '  overflow: hidden;',
+              '  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);',
+              '}',
+              /* Shadow host (direct div child, but NOT the colour layer): fills wrapper, starts invisible */
+              '#' + WRAP_ID + ' > div:not(#hpa-color-layer) {',
+              '  position: absolute !important;',
+              '  inset: 0 !important;',
+              '  width: 100% !important;',
+              '  height: 100% !important;',
+              '  opacity: 0;',
+              '  transition: opacity 0.45s ease;',
+              '  z-index: 1;',
+              '}',
+              /* Colour layer: above the chat, reveals from centre, then fades out */
+              '#hpa-color-layer {',
+              '  position: absolute !important;',
+              '  inset: 0 !important;',
+              '  z-index: 2 !important;',
+              '  pointer-events: none !important;',
+              '  clip-path: circle(0px at 50% 50%);',
+              '  transition: clip-path 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;',
+              '}',
+              '#hpa-color-layer.expanded { clip-path: circle(150% at 50% 50%); }'
+            ].join('\n');
+            document.head.appendChild(style);
+          }
+        
+          /* ------------------------------------------------------------------
+           * Helper: read background colour from toggle button (falls back to
+           * the widget's primary teal if the button is transparent / image-only)
+           * ------------------------------------------------------------------ */
+          function getToggleColor(el) {
+            if (!el) return '#057a9c';
+            function nonTransparent(c) { return c && c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent'; }
+            var bg = getComputedStyle(el).backgroundColor;
+            if (nonTransparent(bg)) return bg;
+            var inner = el.firstElementChild;
+            if (inner) {
+              var bg2 = getComputedStyle(inner).backgroundColor;
+              if (nonTransparent(bg2)) return bg2;
+            }
+            return '#057a9c';
+          }
+        
+          /* ------------------------------------------------------------------
+           * 2. Inject styles INSIDE the shadow root to override .hpa-widget
+           * ------------------------------------------------------------------ */
+          function injectShadowStyles(shadowRoot) {
+            var style = document.createElement('style');
+            style.textContent = [
+              '.hpa-widget {',
+              '  position: absolute !important;',
+              '  top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;',
+              '  width: 100% !important; height: 100% !important;',
+              '  display: flex !important; flex-direction: column !important;',
+              '}',
+              '.hpa-widget > div:first-child:not(:last-child) {',
+              '  width: 100% !important; max-width: 100% !important;',
+              '  flex: 1 1 auto !important; min-height: 0 !important;',
+              '  border-radius: 18px 18px 0 0 !important; overflow: hidden !important;',
+              '}',
+              /* Hide the X (close) button in the chat panel header (it's a div wrapping an SVG, not an img) */
+              '.hpa-widget > div > div:first-child > div:last-child { display: none !important; pointer-events: none !important; }'
+            ].join('\n');
+            shadowRoot.appendChild(style);
+          }
+        
+          /* ------------------------------------------------------------------
+           * 3. Find the shadow host (div in <body> that owns the shadow root)
+           * ------------------------------------------------------------------ */
+          function findShadowHost() {
+            return Array.prototype.find.call(document.body.children, function (el) {
+              return !!el.shadowRoot;
+            }) || null;
+          }
+        
+          /* ------------------------------------------------------------------
+           * 4. Move shadow host into the hero wrapper with a 3-phase animation:
+           *   Phase 1 – blob flies from toggle position to wrapper centre (500 ms)
+           *   Phase 2 – colour layer expands from centre, filling the wrapper (550 ms)
+           *   Phase 3 – chat fades in, colour layer fades out, chrome is hidden
+           * ------------------------------------------------------------------ */
+          function embed(host, shadowRoot) {
+            var heroContainer = document.querySelector('.hero .container');
+            if (!heroContainer) return;
+        
+            /* ── Scroll to top and lock scroll for the duration of the animation ── */
+            window.scrollTo(0, 0);
+            var scrollLock = function () { if (window.scrollY !== 0) window.scrollTo(0, 0); };
+            window.addEventListener('scroll', scrollLock);
+        
+            /* ── Patch scrollIntoView so the widget never scrolls the page ──────
+             * widget.umd.js calls scrollIntoView() on new messages to auto-scroll
+             * the chat to the bottom. Because #hpa-hero-embed uses overflow:hidden
+             * (not a scroll container), the browser escalates the scroll up to
+             * window. We intercept the call: if the element lives inside our
+             * wrapper we instead scroll the nearest overflow:auto/scroll ancestor
+             * inside the shadow root (the messages container) and return early. */
+            var _origSIV = Element.prototype.scrollIntoView;
+            Element.prototype.scrollIntoView = function (opts) {
+              var n = this;
+              while (n) {
+                if (n.id === WRAP_ID) {
+                  /* Re-implement: scroll the nearest internal scrollable container */
+                  var c = this.parentNode;
+                  while (c) {
+                    if (c.nodeType === 11 /* ShadowRoot */) break;
+                    var ov = getComputedStyle(c).overflowY;
+                    if (ov === 'auto' || ov === 'scroll') { c.scrollTop = c.scrollHeight; return; }
+                    c = c.parentNode;
+                  }
+                  return; /* no inner scroll container found – just abort */
+                }
+                if (n.nodeType === 11) { n = n.host; continue; } /* cross shadow boundary */
+                n = n.parentNode;
+                if (!n) break;
+              }
+              return _origSIV.call(this, opts); /* not inside wrapper – proceed normally */
+            };
+        
+            /* ── Capture toggle metrics BEFORE moving the host ─────────────── */
+            var widget    = shadowRoot.querySelector('.hpa-widget');
+            var toggleEl  = widget ? widget.firstElementChild : null;
+            var toggleRect = toggleEl ? toggleEl.getBoundingClientRect() : null;
+            var blobColor  = getToggleColor(toggleEl);
+            var blobSize   = toggleRect ? Math.round(Math.min(toggleRect.width, toggleRect.height)) : 56;
+            var startX     = toggleRect ? toggleRect.left + toggleRect.width  / 2 : window.innerWidth  / 2;
+            var startY     = toggleRect ? toggleRect.top  + toggleRect.height / 2 : window.innerHeight - 40;
+        
+            /* ── Build wrapper with fixed 500 px height ────────────────────── */
+            var wrap = document.createElement('div');
+            wrap.id = WRAP_ID;
+            heroContainer.insertBefore(wrap, heroContainer.firstChild);
+        
+            /* Colour layer (inside wrapper, clipped by overflow:hidden) */
+            var colorLayer = document.createElement('div');
+            colorLayer.id = 'hpa-color-layer';
+            colorLayer.style.background = blobColor;
+            wrap.appendChild(colorLayer);
+        
+            /* Shadow host (chat widget) */
+            wrap.appendChild(host);
+            injectShadowStyles(shadowRoot);
+        
+            /* ── Create the flying blob at the toggle's viewport position ───── */
+            var blob = document.createElement('div');
+            blob.style.cssText = [
+              'position:fixed',
+              'z-index:99999',
+              'border-radius:50%',
+              'background:' + blobColor,
+              'pointer-events:none',
+              'will-change:transform,opacity',
+              'width:'  + blobSize + 'px',
+              'height:' + blobSize + 'px',
+              'left:'   + (startX - blobSize / 2) + 'px',
+              'top:'    + (startY - blobSize / 2) + 'px',
+              'opacity:1',
+              'box-shadow:0 4px 24px rgba(0,0,0,.35)'
+            ].join(';');
+            document.body.appendChild(blob);
+        
+            /* ── Phase 1: fly blob to wrapper centre ───────────────────── */
+            requestAnimationFrame(function () {
+              var wrapRect = wrap.getBoundingClientRect();
+              var heroX = wrapRect.left + wrapRect.width  / 2;
+              var heroY = wrapRect.top  + wrapRect.height / 2;
+              var dx = heroX - startX;
+              var dy = heroY - startY;
+        
+              requestAnimationFrame(function () {
+                blob.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                blob.style.transform  = 'translate(' + dx + 'px,' + dy + 'px)';
+        
+                /* ── Phase 2: hide blob, expand colour layer inside wrapper ──── */
+                setTimeout(function () {
+                  blob.style.display = 'none';
+        
+                  /* Colour layer clip-path grows from centre — overflow:hidden keeps
+                     it fully contained within the 500 px wrapper */
+                  colorLayer.classList.add('expanded');
+        
+                  /* Open chat in the background while colour fills in */
+                  var w = shadowRoot.querySelector('.hpa-widget');
+                  if (w) {
+                    var btn = w.firstElementChild;
+                    if (btn) {
+                      btn.click();
+                      setTimeout(function () {
+                        var last = w.lastElementChild;
+                        if (last) last.style.setProperty('display', 'none', 'important');
+                      }, 80);
+                    }
+                  }
+        
+                  /* ── Phase 3: reveal chat, fade colour layer out ──────────── */
+                  setTimeout(function () {
+                    host.style.opacity   = '1';       /* chat fades in */
+                    colorLayer.style.opacity = '0';  /* colour fades out */
+        
+                    /* Final cleanup + release scroll lock */
+                    setTimeout(function () {
+                      if (blob.parentNode)       blob.parentNode.removeChild(blob);
+                      if (colorLayer.parentNode) colorLayer.parentNode.removeChild(colorLayer);
+                      window.removeEventListener('scroll', scrollLock);
+                    }, 500);
+        
+                  }, 520); /* wait for colour layer to finish expanding */
+        
+                }, 480); /* wait for blob to reach centre */
+              });
+            });
+          }
+        
+          /* ------------------------------------------------------------------
+           * 5. Wait for shadow host + .hpa-widget, then embed
+           * ------------------------------------------------------------------ */
+          function start() {
+            injectOuterStyles();
+        
+            var host = findShadowHost();
+            if (host && host.shadowRoot && host.shadowRoot.querySelector('.hpa-widget')) {
+              embed(host, host.shadowRoot);
+              return;
+            }
+        
+            var observer = new MutationObserver(function (_, obs) {
+              var h = findShadowHost();
+              if (!h || !h.shadowRoot) return;
+              if (!h.shadowRoot.querySelector('.hpa-widget')) return;
+              obs.disconnect();
+              embed(h, h.shadowRoot);
+            });
+        
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+            setTimeout(function () { observer.disconnect(); }, 20000);
+          }
+        
+          /* ------------------------------------------------------------------
+           * 6. Bootstrap
+           * ------------------------------------------------------------------ */
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', start);
+          } else {
+            start();
+          }
+        }());
+    </script>
+
+
+    
 </body>
 
 </html>
